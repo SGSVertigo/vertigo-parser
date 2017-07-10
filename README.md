@@ -9,9 +9,10 @@ conversion on-board (e.g., battery removed or depleted).
 1. Clone the repository and `cd` into it
 2. Create a virtualenv with `$ virtualenv venv`
 3. Install requirements using `$ pip install -r requirements.txt`
-4. Put the binary log and the meta file (e.g., vtg_log0.bin and
-vtg_log0.meta.bin) into the working directory.
+4. Put the binary log and the meta file (e.g., `vtg_log0.bin` and
+`vtg_log0.meta.bin`) into the working directory.
 5. Run using `$ python parse.py vtg_log0.bin`
+6. The output will be created in `vtg_log0.csv`. You are done.
 
 ## Authorship
 
