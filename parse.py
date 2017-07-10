@@ -14,9 +14,9 @@ print "Using metafile %s" % metafile
 
 try:
     meta = open(metafile, "rb").read()
-    accel_fsr = binascii.hexlify(meta[1] + meta[0])
-    gyro_fsr = binascii.hexlify(meta[3] + meta[2])
-    print "Accel/gyro FSRs are %d/%d" % (int(accel_fsr, 16), int(gyro_fsr, 16))
+    accel_fsr = int(binascii.hexlify(meta[1] + meta[0]), 16)
+    gyro_fsr = int(binascii.hexlify(meta[3] + meta[2]), 16)
+    print "Accel/gyro FSRs are %d/%d" % (accel_fsr, gyro_fsr)
 except IOError:
     print "Could not open meta file"
 
@@ -51,7 +51,13 @@ while True:
             gps_alt = float(struct.unpack(">i", gps_alt_b)[0] / 1e3)
             print "Lon/lat/alt = %f/%f/%f" % (gps_lon, gps_lat, gps_alt)
         elif p_typ == 2:
-            pass
+            ax = accel_fsr * float(struct.unpack(">h", packet[6] + packet[5])[0]) / 2**16
+            ay = accel_fsr * float(struct.unpack(">h", packet[8] + packet[7])[0]) / 2**16
+            az = accel_fsr * float(struct.unpack(">h", packet[10] + packet[9])[0]) / 2**16
+            gx = gyro_fsr * float(struct.unpack(">h", packet[12] + packet[11])[0]) / 2**16
+            gy = gyro_fsr * float(struct.unpack(">h", packet[14] + packet[13])[0]) / 2**16
+            gz = gyro_fsr * float(struct.unpack(">h", packet[16] + packet[15])[0]) / 2**16
+            print "%f/%f/%f/%f/%f/%f" % (ax, ay, az, gx, gy, gz)
         elif p_typ == 3:
             pass
         else:
