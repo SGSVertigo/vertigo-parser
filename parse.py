@@ -3,7 +3,7 @@ import sys
 import binascii
 import struct
 
-# First argument
+# First argument is the input binary file
 try:
     logfile = sys.argv[1]
 except IndexError:
@@ -12,6 +12,7 @@ except IndexError:
 metafile = logfile.split(".")[0] + ".meta.bin"
 print "Using metafile %s" % metafile
 
+# Try opening the meta file which we need for the FSRs
 try:
     meta = open(metafile, "rb").read()
     accel_fsr = int(binascii.hexlify(meta[1] + meta[0]), 16)
@@ -29,6 +30,10 @@ try:
 except IOError:
     print "Could not open binary log %s" % logfile
     exit(1)
+
+# The output file
+outfile = logfile.split(".")[0] + ".csv"
+csv = open(outfile, "w")
 
 # Run through
 i = 0
@@ -49,7 +54,8 @@ while True:
             gps_lat = float(struct.unpack(">i", gps_lat_b)[0] / 1e7)
             gps_alt_b = packet[16] + packet[15] + packet[14] + packet[13]
             gps_alt = float(struct.unpack(">i", gps_alt_b)[0] / 1e3)
-            print "Lon/lat/alt = %f/%f/%f" % (gps_lon, gps_lat, gps_alt)
+            csv.write("%d,%d,%f,%f,%f\n" % (p_ts, p_typ, gps_lon, gps_lat,
+                gps_alt))
         elif p_typ == 2:
             ax = accel_fsr * float(struct.unpack(">h", packet[6] + packet[5])[0]) / 2**16
             ay = accel_fsr * float(struct.unpack(">h", packet[8] + packet[7])[0]) / 2**16
@@ -57,7 +63,8 @@ while True:
             gx = gyro_fsr * float(struct.unpack(">h", packet[12] + packet[11])[0]) / 2**16
             gy = gyro_fsr * float(struct.unpack(">h", packet[14] + packet[13])[0]) / 2**16
             gz = gyro_fsr * float(struct.unpack(">h", packet[16] + packet[15])[0]) / 2**16
-            print "%f/%f/%f/%f/%f/%f" % (ax, ay, az, gx, gy, gz)
+            csv.write("%d,%d,%f,%f,%f,%f,%f,%f\n" % (p_ts, p_typ, \
+                    ax, ay, az, gx, gy, gz))
         elif p_typ == 3:
             q0 = struct.unpack(">f", packet[8] + packet[7] + packet[6] +
                     packet[5])[0]
@@ -67,12 +74,16 @@ while True:
                     packet[13])[0]
             q3 = struct.unpack(">f", packet[20] + packet[19] + packet[18] +
                     packet[17])[0]
-            print "Quat = [%f,%f,%f,%f]" % (q0, q1, q2, q3)
+            csv.write("%d,%d,%f,%f,%f,%f\n" % (p_ts, p_typ, \
+                    q0, q1, q2, q3))
         else:
             print "huh?"
         
         # Next log_msg_t
         i += 1
     except IndexError:
-        print("Finished parsing %s" % logfile)
+        print("Finished parsing %s - %d records" % (logfile, i))
         break
+
+# We're done
+csv.close()
