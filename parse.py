@@ -2,10 +2,20 @@
 import binascii
 import struct
 
-logfile = "vertigo.bin"
+logfile = "vtg_log1.bin"
+metafile = logfile.split(".")[0] + ".meta.bin"
+print "Using metafile %s" % metafile
+
+try:
+    meta = open(metafile, "rb").read()
+    accel_fsr = binascii.hexlify(meta[1] + meta[0])
+    gyro_fsr = binascii.hexlify(meta[3] + meta[2])
+    print "Accel/gyro FSRs are %d/%d" % (int(accel_fsr, 16), int(gyro_fsr, 16))
+except IOError:
+    print "Could not open meta file"
 
 # size in bytes of a log_msg_t
-MSG_LEN = 4 + 1 + 6*2
+MSG_LEN = 4 + 1 + 16
 
 # Get raw
 raw = open(logfile, "rb").read()
