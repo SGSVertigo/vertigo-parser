@@ -59,16 +59,18 @@ while True:
             gz = gyro_fsr * float(struct.unpack(">h", packet[16] + packet[15])[0]) / 2**16
             print "%f/%f/%f/%f/%f/%f" % (ax, ay, az, gx, gy, gz)
         elif p_typ == 3:
-            pass
+            q0 = struct.unpack(">f", packet[8] + packet[7] + packet[6] +
+                    packet[5])[0]
+            q1 = struct.unpack(">f", packet[12] + packet[11] + packet[10] +
+                    packet[9])[0]
+            q2 = struct.unpack(">f", packet[16] + packet[15] + packet[14] +
+                    packet[13])[0]
+            q3 = struct.unpack(">f", packet[20] + packet[19] + packet[18] +
+                    packet[17])[0]
+            print "Quat = [%f,%f,%f,%f]" % (q0, q1, q2, q3)
         else:
             print "huh?"
-        p_d0 = binascii.hexlify(packet[6] + packet[5])
-        p_d1 = binascii.hexlify(packet[8] + packet[7])
-        p_d2 = binascii.hexlify(packet[10] + packet[9])
-        p_d3 = binascii.hexlify(packet[12] + packet[11])
-        p_d4 = binascii.hexlify(packet[14] + packet[13])
-        p_d5 = binascii.hexlify(packet[16] + packet[15])
-
+        
         # Next log_msg_t
         i += 1
     except IndexError:
