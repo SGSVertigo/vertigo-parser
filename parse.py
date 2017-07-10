@@ -1,8 +1,14 @@
 # Vertigo 2016
+import sys
 import binascii
 import struct
 
-logfile = "vtg_log1.bin"
+# First argument
+try:
+    logfile = sys.argv[1]
+except IndexError:
+    print "Usage: parse.py vtg_log.bin"
+    exit(1)
 metafile = logfile.split(".")[0] + ".meta.bin"
 print "Using metafile %s" % metafile
 
@@ -18,7 +24,11 @@ except IOError:
 MSG_LEN = 4 + 1 + 16
 
 # Get raw
-raw = open(logfile, "rb").read()
+try:
+    raw = open(logfile, "rb").read()
+except IOError:
+    print "Could not open binary log %s" % logfile
+    exit(1)
 
 # Run through
 i = 0
